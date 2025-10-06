@@ -1,0 +1,81 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.     EX06.
+       AUTHOR.         RICKOSHI.
+       INSTALLATION.   FATEC-SP.
+       DATE-WRITTEN.   05/10/2025.
+       DATE-COMPILED.
+       SECURITY.       APENAS O AUTOR PODE MODIFICA-LO.
+      *REMARKS.        LE TODOS OS REGISTROS DE CADENT E SELECIONA
+      *                PARA GRAVAÇÃO NO ARQUIVO DE SAÍDA “CADSAI”
+      *                TODOS OS REGISTROS QUE TIVEREM SALÁRIO 
+      *                BRUTO MAIOR QUE R$ 3.000,00.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+           SOURCE-COMPUTER. IBM-PC.
+           OBJECT-COMPUTER. IBM-PC.
+           SPECIAL-NAMES.   DECIMAL-POINT IS COMMA.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CADENT ASSIGN TO DISK
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT CADSAI ASSIGN TO DISK
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD CADENT
+           LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "CADENT.DAT".
+       01 REG-ENT.
+           02 MATRIC-ENT     PIC 9(05).
+           02 NOME-ENT       PIC X(30).
+           02 SALBRUT-ENT    PIC 9(05)V99.
+
+       FD CADSAI
+           LABEL RECORD IS STANDARD
+           VALUE OF FILE-ID IS "CADSAI.DAT".
+       01 REG-SAI.
+           02 MATRIC-SAI     PIC 9(05).
+           02 NOME-SAI       PIC X(30).
+           02 SALBRUT-SAI    PIC 9(05)V99.
+
+       WORKING-STORAGE SECTION.
+       77 FIM-ARQ    PIC X(03) VALUE "NAO".
+
+       PROCEDURE DIVISION.
+       EM01-EX06.
+           PERFORM INICIO.
+           PERFORM PRINCIPAL
+               UNTIL FIM-ARQ EQUAL "SIM".
+           PERFORM TERMINO.
+           STOP RUN.
+
+       INICIO.
+           OPEN INPUT CADENT
+               OUTPUT CADSAI.
+           PERFORM LEITURA.
+
+       LEITURA.
+           READ CADENT
+               AT END
+                   MOVE "SIM" TO FIM-ARQ.
+
+       PRINCIPAL.
+           PERFORM SELECAO.
+           PERFORM LEITURA.
+
+       SELECAO.
+           IF SALBRUT-ENT > 3000,00
+               PERFORM GRAVACAO.
+
+       GRAVACAO.
+           MOVE MATRIC-ENT TO MATRIC-SAI.
+           MOVE NOME-ENT TO NOME-SAI.
+           MOVE SALBRUT-ENT TO SALBRUT-SAI.
+           WRITE REG-SAI.
+
+       TERMINO.
+           CLOSE CADENT
+                 CADSAI.
